@@ -73,6 +73,9 @@ class RootCollection extends SimpleCollection {
 		$systemAddressBookRoot = new AddressBookRoot(new SystemPrincipalBackend(), $systemCardDavBackend, 'principals/system');
 		$systemAddressBookRoot->disableListing = $disableListing;
 
+		$uploadCollection = new Upload\RootCollection($principalBackend);
+		$uploadCollection->disableListing = $disableListing;
+
 		$children = [
 				new SimpleCollection('principals', [
 						$userPrincipals,
@@ -85,6 +88,7 @@ class RootCollection extends SimpleCollection {
 						$systemAddressBookRoot]),
 				$systemTagCollection,
 				$systemTagRelationsCollection,
+				$uploadCollection,
 		];
 
 		parent::__construct('root', $children);

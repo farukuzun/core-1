@@ -21,5 +21,25 @@
  *
  */
 
-$application->add(new OCA\Files\Command\Scan(\OC::$server->getUserManager()));
-$application->add(new OCA\Files\Command\DeleteOrphanedFiles(\OC::$server->getDatabaseConnection()));
+$dbConnection = \OC::$server->getDatabaseConnection();
+$userManager = OC::$server->getUserManager();
+$shareManager = new \OC\Share20\Manager(
+		\OC::$server->getLogger(),
+		\OC::$server->getConfig(),
+		new \OC\Share20\DefaultShareProvider(
+			\OC::$server->getDatabaseConnection(),
+			\OC::$server->getUserManager(),
+			\OC::$server->getGroupManager(),
+			\OC::$server->getRootFolder()
+		),
+		\OC::$server->getSecureRandom(),
+		\OC::$server->getHasher(),
+		\OC::$server->getMountManager(),
+		\OC::$server->getGroupManager(),
+		\OC::$server->getL10N('core')
+	);
+
+/** @var Symfony\Component\Console\Application $application */
+$application->add(new OCA\Files\Command\Scan($userManager));
+$application->add(new OCA\Files\Command\DeleteOrphanedFiles($dbConnection));
+$application->add(new OCA\Files\Command\TransferOwnership($userManager, $shareManager));

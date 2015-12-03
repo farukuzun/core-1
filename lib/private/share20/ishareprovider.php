@@ -61,12 +61,11 @@ interface IShareProvider {
 	 * Get all shares by the given user
 	 *
 	 * @param IUser $user
-	 * @param int $shareType
-	 * @param int $offset
-	 * @param int $limit
+	 * @param \OCP\Files\File|\OCP\Files\Folder $path
+	 * @param bool $reshares
 	 * @return Share[]
 	 */
-	public function getShares(IUser $user, $shareType, $offset, $limit);
+	public function getShares(IUser $user, $path, $reshares);
 
 	/**
 	 * Get share by id

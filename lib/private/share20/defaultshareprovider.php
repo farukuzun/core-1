@@ -221,15 +221,42 @@ class DefaultShareProvider implements IShareProvider {
 	}
 
 	/**
-	 * Get all shares by the given user
+	 * Get all shares by the given user. Sharetype and path can be used to filter.
 	 *
 	 * @param IUser $user
-	 * @param int $shareType
-	 * @param int $offset
-	 * @param int $limit
+	 * @param \OCP\Files\File|\OCP\Files\Folder $path
+	 * @param bool $reshares
 	 * @return Share[]
 	 */
-	public function getShares(IUser $user, $shareType, $offset, $limit) {
+	public function getShares(IUser $user, $path, $reshares) {
+		$qb = $this->dbConn->getQueryBuilder();
+		$qb->select('*')
+			->from('share');
+
+		if ($reshares === false) {
+			$qb->andWhere($qb->expr()->eq('uid_initiator', $qb->createNamedParameter($user->getUID())));
+		} else {
+			$qb->andWhere(
+				$qb->expr()->orX(
+					$qb->expr()->eq('uid_owner', $qb->createNamedParameter($user->getUID())),
+					$qb->expr()->eq('uid_initiator', $qb->createNamedParameter($user->getUID()))
+				)
+			);
+		}
+
+
+		if ($path !== null) {
+			$qb->andWhere($qb->expr()->eq('file_source', $qb->createNamedParameter($path->getId())));
+		}
+
+		$cursor = $qb->execute();
+		$shares = [];
+		while($data = $cursor->fetch()) {
+			$shares[] = $this->createShare($data);
+		}
+		$cursor->closeCursor();
+
+		return $shares;
 	}
 
 	/**

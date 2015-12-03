@@ -325,6 +325,37 @@ class Share20OCS {
 		return new \OC_OCS_Result($share);
 	}
 
+	public function getShares() {
+		$sharedWithMe = $this->request->getParam('shared_with_me');
+		$reshares = $this->request->getParam('reshares', null);
+		$subfiles = $this->request->getParam('subfiles');
+		$path = $this->request->getParam('path', null);
+
+		if ($path !== null) {
+			$userFolder = $this->rootFolder->getUserFolder($this->currentUser->getUID());
+			try {
+				$path = $userFolder->get($path);
+			} catch (\OCP\Files\NotFoundException $e) {
+				return new \OC_OCS_Result(null, 404, 'wrong path, file/folder doesn\'t exist');
+			}
+		}
+
+		if ($reshares === 'true') {
+			$reshares = true;
+		} else {
+			$reshares = false;
+		}
+
+		$shares = $this->shareManager->getShares($this->currentUser, $path, $reshares);
+
+		$formatted = [];
+		foreach ($shares as $share) {
+			$formatted[] = $this->formatShare($share);
+		}
+
+		return new \OC_OCS_Result($formatted);
+	}
+
 	/**
 	 * @param IShare $share
 	 * @return bool

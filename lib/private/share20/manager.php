@@ -589,14 +589,23 @@ class Manager {
 		\OC_Hook::emit('OCP\Share', 'post_unshare', $hookParams);
 	}
 
+
 	/**
-	 * Retrieve all shares by the current user
+	 * Get shares shared by (initiated) by the provided user.
 	 *
-	 * @param int $page
-	 * @param int $perPage
+	 * @param IUser $user
+	 * @param \OCP\Files\File|\OCP\Files\Folder $path
+	 * @param bool $reshares
 	 * @return Share[]
 	 */
-	public function getShares($page=0, $perPage=50) {
+	public function getShares(IUser $user, $path = null, $reshares = false) {
+		if ($path !== null &&
+				!($path instanceof \OCP\Files\File) &&
+				!($path instanceof \OCP\Files\Folder)) {
+			throw new \InvalidArgumentException('invalid path');
+		}
+
+		return $this->defaultProvider->getShares($user, $path, $reshares);
 	}
 
 	/**

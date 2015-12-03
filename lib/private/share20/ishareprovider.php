@@ -96,10 +96,9 @@ interface IShareProvider {
 	 * Get shared with the given user
 	 *
 	 * @param IUser $user
-	 * @param int $shareType
 	 * @param Share
 	 */
-	public function getSharedWithMe(IUser $user, $shareType = null);
+	public function getSharedWith(IUser $user);
 
 	/**
 	 * Get a share by token and if present verify the password

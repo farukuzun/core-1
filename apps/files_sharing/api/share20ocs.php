@@ -325,11 +325,26 @@ class Share20OCS {
 		return new \OC_OCS_Result($share);
 	}
 
+	private function getSharedWithMe() {
+		$shares = $this->shareManager->getSharedWith($this->currentUser);
+
+		$formatted = [];
+		foreach ($shares as $share) {
+			$formatted[] = $this->formatShare($share);
+		}
+
+		return new \OC_OCS_Result($formatted);
+	}
+
 	public function getShares() {
-		$sharedWithMe = $this->request->getParam('shared_with_me');
+		$sharedWithMe = $this->request->getParam('shared_with_me', null);
 		$reshares = $this->request->getParam('reshares', null);
 		$subfiles = $this->request->getParam('subfiles');
 		$path = $this->request->getParam('path', null);
+
+		if ($sharedWithMe === 'true') {
+			return $this->getSharedWithMe();
+		}
 
 		if ($path !== null) {
 			$userFolder = $this->rootFolder->getUserFolder($this->currentUser->getUID());

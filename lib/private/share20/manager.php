@@ -596,7 +596,7 @@ class Manager {
 	 * @param IUser $user
 	 * @param \OCP\Files\File|\OCP\Files\Folder $path
 	 * @param bool $reshares
-	 * @return Share[]
+	 * @return IShare[]
 	 */
 	public function getShares(IUser $user, $path = null, $reshares = false) {
 		if ($path !== null &&
@@ -606,6 +606,16 @@ class Manager {
 		}
 
 		return $this->defaultProvider->getShares($user, $path, $reshares);
+	}
+
+	/**
+	 * Get shares shared with $user.
+	 *
+	 * @param IUser $user
+	 * @return IShare[]
+	 */
+	public function getSharedWith(IUser $user) {
+		return $this->defaultProvider->getSharedWith($user);
 	}
 
 	/**

@@ -319,10 +319,28 @@ class DefaultShareProvider implements IShareProvider {
 	 * Get shared with the given user
 	 *
 	 * @param IUser $user
-	 * @param int $shareType
 	 * @param Share
 	 */
-	public function getSharedWithMe(IUser $user, $shareType = null) {
+	public function getSharedWith(IUser $user) {
+		$shares = [];
+
+		//Get shares directly with me
+		$qb = $this->dbConn->getQueryBuilder();
+		$cursor = $qb->select('*')
+				->from('share')
+				->where(
+					$qb->expr()->andX(
+						$qb->expr()->eq('share_type', $qb->createNamedParameter(\OCP\Share::SHARE_TYPE_USER)),
+						$qb->expr()->eq('share_with', $qb->createNamedParameter($user->getUID()))
+					)
+				)->execute();
+
+		while($data = $cursor->fetch()) {
+			$shares[] = $this->createShare($data);
+		}
+		$cursor->closeCursor();
+
+		return $shares;
 	}
 
 	/**

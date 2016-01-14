@@ -25,11 +25,24 @@
 namespace OC\Core\Command\App;
 
 use OC\Core\Command\Base;
+use OCP\IConfig;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListApps extends Base {
+
+	/** @var IConfig */
+	protected $config;
+
+	/**
+	 * @param IConfig $config
+	 */
+	public function __construct(IConfig $config) {
+		parent::__construct();
+		$this->config = $config;
+	}
+
 	protected function configure() {
 		parent::configure();
 
@@ -47,10 +60,9 @@ class ListApps extends Base {
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		if ($input->getOption('shipped') === 'true' || $input->getOption('shipped') === 'false'){
-			$shouldFilterShipped = true;
 			$shippedFilter = $input->getOption('shipped') === 'true';
 		} else {
-			$shouldFilterShipped = false;
+			$shippedFilter = null;
 		}
 		
 		$apps = \OC_App::getAllApps();
@@ -59,10 +71,10 @@ class ListApps extends Base {
 
 		//sort enabled apps above disabled apps
 		foreach ($apps as $app) {
-			if ($shouldFilterShipped && \OC_App::isShipped($app) !== $shippedFilter){
+			if ($shippedFilter !== null && \OC_App::isShipped($app) !== $shippedFilter){
 				continue;
 			}
-			if (\OC_App::isEnabled($app)) {
+			if ($this->config->getAppValue($app, 'enabled', 'no') !== 'no') {
 				$enabledApps[] = $app;
 			} else {
 				$disabledApps[] = $app;

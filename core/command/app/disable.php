@@ -23,12 +23,25 @@
 
 namespace OC\Core\Command\App;
 
+use OCP\IConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Disable extends Command {
+
+	/** @var IConfig */
+	protected $config;
+
+	/**
+	 * @param IConfig $config
+	 */
+	public function __construct(IConfig $config) {
+		parent::__construct();
+		$this->config = $config;
+	}
+
 	protected function configure() {
 		$this
 			->setName('app:disable')
@@ -42,7 +55,7 @@ class Disable extends Command {
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$appId = $input->getArgument('app-id');
-		if (\OC_App::isEnabled($appId)) {
+		if ($this->config->getAppValue($appId, 'enabled', 'no') !== 'no') {
 			try {
 				\OC_App::disable($appId);
 				$output->writeln($appId . ' disabled');

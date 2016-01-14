@@ -23,12 +23,26 @@
 
 namespace OC\Core\Command\App;
 
+use OCP\IConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Enable extends Command {
+
+	/** @var IConfig */
+	protected $config;
+
+	/**
+	 * @param IConfig $config
+	 */
+	public function __construct(IConfig $config) {
+		parent::__construct();
+		$this->config = $config;
+	}
+
 	protected function configure() {
 		$this
 			->setName('app:enable')
@@ -37,19 +51,36 @@ class Enable extends Command {
 				'app-id',
 				InputArgument::REQUIRED,
 				'enable the specified app'
-			);
+			)
+			->addOption(
+				'groups',
+				'g',
+				InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+				'enable the app only for a list of groups'
+			)
+		;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$appId = $input->getArgument('app-id');
-		if (\OC_App::isEnabled($appId)) {
-			$output->writeln($appId . ' is already enabled');
-		} else if (!\OC_App::getAppPath($appId)) {
+
+		if (!\OC_App::getAppPath($appId)) {
 			$output->writeln($appId . ' not found');
 			return 1;
-		} else {
+		}
+
+		$groups = $input->getOption('groups');
+		if ($this->config->getAppValue($appId, 'enabled', 'no') === 'yes' && empty($groups)) {
+			$output->writeln($appId . ' is already enabled');
+		}
+
+		if (empty($groups)) {
 			\OC_App::enable($appId);
 			$output->writeln($appId . ' enabled');
+		} else {
+			\OC_App::enable($appId, $groups);
+			$output->writeln($appId . ' enabled for groups: ' . implode(', ', $groups));
 		}
+		return 0;
 	}
 }

@@ -198,7 +198,7 @@ class Scan extends Command {
 	 */
 	protected function checkForInterruption($output) {
 		if ($this->hasBeenInterrupted()) {
-			$this->presentResults($output);
+			$this->presentStats($output);
 			exit;
 		}
 	}

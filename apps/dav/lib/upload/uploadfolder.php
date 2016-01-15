@@ -4,8 +4,11 @@ namespace OCA\DAV\Upload;
 
 use OCA\DAV\Connector\Sabre\Directory;
 use Sabre\DAV\Exception\Forbidden;
+use Sabre\DAV\ICollection;
 
-class UploadFolder implements \Sabre\DAV\ICollection {
+class UploadFolder implements ICollection {
+
+	private $node;
 
 	function __construct(Directory $node) {
 		$this->node = $node;

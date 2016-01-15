@@ -33,11 +33,16 @@ class FutureFileTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue(is_resource($stream));
 	}
 
-	/**
-	 * @expectedException Sabre\DAV\Exception\Forbidden
-	 */
 	public function testDelete() {
-		$f = $this->mockFutureFile();
+		$d = $this->getMockBuilder('OCA\DAV\Connector\Sabre\Directory')
+			->disableOriginalConstructor()
+			->setMethods(['delete'])
+			->getMock();
+
+		$d->expects($this->once())
+			->method('delete');
+
+		$f = new \OCA\DAV\Upload\FutureFile($d, 'foo.txt');
 		$f->delete();
 	}
 

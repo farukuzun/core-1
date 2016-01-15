@@ -71,6 +71,6 @@ while(!feof($stream)) {
 
 $destination = pathinfo($file, PATHINFO_BASENAME);
 //echo "Moving $uploadUrl/.file to it's final destination $baseUri/files/$userName/$destination" . PHP_EOL;
-request($client, 'COPY', "$uploadUrl/.file", null, [
+request($client, 'MOVE', "$uploadUrl/.file", null, [
 	'Destination' => "$baseUri/files/$userName/$destination"
 ]);

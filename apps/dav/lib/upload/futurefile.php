@@ -3,6 +3,7 @@
 namespace OCA\DAV\Upload;
 
 use OCA\DAV\Connector\Sabre\Directory;
+use OCA\DAV\Upload\AssemblyStream;
 use Sabre\DAV\Exception\Forbidden;
 use Sabre\DAV\IFile;
 
@@ -15,7 +16,11 @@ use Sabre\DAV\IFile;
  * @package OCA\DAV\Upload
  */
 class FutureFile implements \Sabre\DAV\IFile {
+
+	/** @var Directory */
 	private $root;
+	/** @var string */
+	private $name;
 
 	/**
 	 * @param Directory $root
@@ -38,7 +43,7 @@ class FutureFile implements \Sabre\DAV\IFile {
 	 */
 	function get() {
 		$nodes = $this->root->getChildren();
-		return \OCA\DAV\Upload\AssemblyStream::wrap($nodes);
+		return AssemblyStream::wrap($nodes);
 	}
 
 	/**
@@ -72,7 +77,7 @@ class FutureFile implements \Sabre\DAV\IFile {
 	 * @inheritdoc
 	 */
 	function delete() {
-		throw new Forbidden('Permission denied to delete this file');
+		$this->root->delete();
 	}
 
 	/**
